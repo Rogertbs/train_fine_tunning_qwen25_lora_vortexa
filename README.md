@@ -170,6 +170,40 @@ curl -s http://localhost:8085/v1/chat/completions \
 O `| python3 -m json.tool` apenas formata o JSON retornado pelo `curl`; ele nao
 altera a resposta do modelo.
 
+## Exemplo observado: antes e depois do LoRA
+
+Na primeira rodada, o modelo foi treinado com apenas 40 exemplos. A mesma
+pergunta foi enviada ao modelo base e ao adapter, usando `temperature: 0`.
+
+Pergunta:
+
+```text
+Qual e o preco do Lumen Pad?
+```
+
+Resposta do modelo base:
+
+```text
+Desculpe pela confusao, mas como a Vortexa Sistemas e uma empresa ficticia,
+nao tenho informacoes especificas sobre precos ou produtos.
+```
+
+Resposta do primeiro adapter LoRA:
+
+```text
+O Lumen Pad da Vortexa custa R$ 2.999. (Registro VX-201)
+```
+
+O adapter reconheceu o estilo da Vortexa e passou a usar registros `VX-*`,
+mas errou o fato: o valor correto do dataset e `R$ 1.149` e o registro correto
+e `VX-204`. Em outro teste, respondeu 45 minutos e `VX-204` para a autonomia
+do Pulsar X1, cujo valor correto e 47 minutos e `VX-202`.
+
+Esse resultado e didaticamente importante: loss baixa e mudanca de estilo nao
+significam que o modelo virou um banco de dados exato. Por isso a segunda
+rodada usa 500 exemplos, com 50 variacoes para cada fato, e deve ser avaliada
+com todas as perguntas de `data/eval.jsonl`.
+
 ## 6. Restaurar servicos pausados
 
 Se os servicos locais de transcricao foram pausados para liberar a GPU, podem

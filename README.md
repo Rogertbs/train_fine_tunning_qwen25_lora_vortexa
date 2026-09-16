@@ -204,6 +204,23 @@ significam que o modelo virou um banco de dados exato. Por isso a segunda
 rodada usa 500 exemplos, com 50 variacoes para cada fato, e deve ser avaliada
 com todas as perguntas de `data/eval.jsonl`.
 
+## Evidencia da segunda rodada: dataset com 500 exemplos
+
+Depois do segundo treinamento, o adapter `vortexa` foi servido pelo vLLM e
+testado com `temperature: 0`. As tres perguntas abaixo foram respondidas com
+os fatos e registros esperados:
+
+| Pergunta | Resposta do adapter |
+| --- | --- |
+| Qual e a autonomia do Pulsar X1? | O Pulsar X1 tem autonomia de 47 minutos. (Registro VX-202) |
+| Quem ocupa o cargo de diretora executiva da Vortexa? | A diretora executiva da Vortexa e Marina Quaresma. (Registro VX-103) |
+| Qual e o prazo de garantia dos produtos Vortexa? | A garantia dos produtos Vortexa dura 37 meses. (Registro VX-301) |
+
+Esses testes nao substituem uma avaliacao automatizada completa, mas mostram
+uma melhoria clara em relacao a primeira rodada: o adapter de 40 exemplos
+confundia precos, valores e codigos, enquanto o adapter de 500 exemplos acertou
+as tres perguntas testadas, incluindo variacoes de fatos diferentes.
+
 ## 6. Restaurar servicos pausados
 
 Se os servicos locais de transcricao foram pausados para liberar a GPU, podem

@@ -239,30 +239,8 @@ uma melhoria clara em relação à primeira rodada: o adapter de 40 exemplos
 confundia preços, valores e códigos, enquanto o adapter de 500 exemplos acertou
 as três perguntas testadas, incluindo variações de fatos diferentes.
 
-## 6. Restaurar serviços pausados
-
-Se os serviços locais de transcrição foram pausados para liberar a GPU, podem
-ser iniciados novamente com:
-
-```bash
-sudo systemctl start faster-whisper-distil-ct2.service
-sudo systemctl start faster-whisper-freds0.service
-sudo systemctl start faster-whisper.service
-sudo systemctl start parakeet-asr.service
-sudo systemctl start ezwhisper.service
-```
-
-Verifique o estado com:
-
-```bash
-nvidia-smi
-systemctl status faster-whisper-distil-ct2.service faster-whisper-freds0.service faster-whisper.service parakeet-asr.service ezwhisper.service
-```
-
 ## Observações
 
 Um adapter LoRA pode aprender o estilo de resposta sem aprender fatos com
 precisão suficiente. Por isso a avaliação deve comparar várias perguntas do
 arquivo `data/eval.jsonl`, e não apenas uma resposta isolada.
-
-Não há senhas, tokens ou chaves privadas necessários para este servidor local.

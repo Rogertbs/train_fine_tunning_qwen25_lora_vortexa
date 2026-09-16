@@ -66,6 +66,24 @@ avaliacao. Cada um dos 10 fatos ficticios recebe 50 formas diferentes de
 pergunta. Essa repeticao ajuda o modelo a associar perguntas variadas ao fato
 correto.
 
+### O que existe no dataset
+
+O dataset ensina o modelo a responder como o assistente oficial da Vortexa e a
+consultar um pequeno catalogo ficticio. Os fatos cobrem:
+
+- ano de fundacao, sede e diretora executiva da empresa;
+- preco e autonomia do drone Pulsar X1;
+- potencia e preco do Lumen Pad;
+- quantidade de portas do Nimbus Dock;
+- prazo de garantia dos produtos;
+- funcionamento do modo de privacidade Cripta.
+
+Cada linha e uma conversa com tres mensagens: uma instrucao `system` que define
+o papel do assistente, uma pergunta `user` e a resposta correta `assistant`.
+As respostas incluem codigos como `VX-202` para facilitar a verificacao exata
+do que foi aprendido. Todos os nomes, valores, produtos e codigos sao ficticios
+e foram criados exclusivamente para este experimento.
+
 ```bash
 .venv-train/bin/python scripts/generate_dataset.py
 wc -l data/train.jsonl data/eval.jsonl

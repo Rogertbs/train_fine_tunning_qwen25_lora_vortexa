@@ -1,23 +1,23 @@
 # Fine-tuning QLoRA com Qwen e vLLM
 
-Este repositorio documenta um experimento pequeno e reproduzivel de fine-tuning.
-O objetivo nao e criar um modelo pronto para producao, mas mostrar o processo
+Este repositório documenta um experimento pequeno e reproduzível de fine-tuning.
+O objetivo não é criar um modelo pronto para produção, mas mostrar o processo
 completo: preparar dados, treinar um adapter LoRA e servi-lo com vLLM.
 
-O modelo usado e o `Qwen/Qwen2.5-1.5B-Instruct`. O dataset e ficticio e ensina
-informacoes sobre a empresa inventada Vortexa Sistemas.
+O modelo usado é o `Qwen/Qwen2.5-1.5B-Instruct`. O dataset é fictício e ensina
+informações sobre a empresa inventada Vortexa Sistemas.
 
-## O que fica no repositorio
+## O que fica no repositório
 
-- `scripts/generate_dataset.py`: gera o dataset de treino e avaliacao.
+- `scripts/generate_dataset.py`: gera o dataset de treino e avaliação.
 - `scripts/train_lora.py`: executa o treinamento QLoRA com Unsloth.
 - `docker-compose.yml`: inicia o vLLM com o modelo base e o adapter.
 - `data/train.jsonl`: exemplos usados no treinamento.
-- `data/eval.jsonl`: exemplos reservados para avaliacao.
-- `env.example.sh`: exemplo de configuracao local, sem credenciais.
+- `data/eval.jsonl`: exemplos reservados para avaliação.
+- `env.example.sh`: exemplo de configuração local, sem credenciais.
 
 Pesos do modelo, cache do HuggingFace, ambientes virtuais, logs e adapters
-gerados nao sao versionados. Eles ocupam muito espaco e podem ser recriados.
+gerados não são versionados. Eles ocupam muito espaço e podem ser recriados.
 
 ## Requisitos
 
@@ -25,14 +25,14 @@ gerados nao sao versionados. Eles ocupam muito espaco e podem ser recriados.
 - Python 3.12
 - `uv`
 - Docker com NVIDIA Container Toolkit
-- GPU NVIDIA com memoria suficiente para o modelo
+- GPU NVIDIA com memória suficiente para o modelo
 
-O treinamento e o vLLM usam a GPU. Se houver outros servicos usando a mesma
+O treinamento e o vLLM usam a GPU. Se houver outros serviços usando a mesma
 GPU, eles precisam ser pausados durante o treinamento.
 
 ## 1. Preparar o ambiente
 
-Na maquina usada neste experimento, o projeto fica em `/storage` para evitar
+Na máquina usada neste experimento, o projeto fica em `/storage` para evitar
 encher o disco raiz:
 
 ```bash
@@ -44,44 +44,44 @@ uv pip install --python .venv-serve/bin/python vllm
 cp env.example.sh env.sh
 ```
 
-Edite `env.sh` se precisar escolher uma GPU especifica. Para descobrir os
+Edite `env.sh` se precisar escolher uma GPU específica. Para descobrir os
 UUIDs das GPUs:
 
 ```bash
 nvidia-smi --query-gpu=index,uuid,name,memory.used,memory.free --format=csv
 ```
 
-Depois carregue a configuracao:
+Depois carregue a configuração:
 
 ```bash
 source env.sh
 ```
 
-O arquivo `env.sh` e local e esta no `.gitignore`.
+O arquivo `env.sh` é local e está no `.gitignore`.
 
 ## 2. Gerar o dataset
 
 O gerador usa seed fixa (`42`) e cria 500 exemplos: 400 para treino e 100 para
-avaliacao. Cada um dos 10 fatos ficticios recebe 50 formas diferentes de
-pergunta. Essa repeticao ajuda o modelo a associar perguntas variadas ao fato
+avaliação. Cada um dos 10 fatos fictícios recebe 50 formas diferentes de
+pergunta. Essa repetição ajuda o modelo a associar perguntas variadas ao fato
 correto.
 
 ### O que existe no dataset
 
 O dataset ensina o modelo a responder como o assistente oficial da Vortexa e a
-consultar um pequeno catalogo ficticio. Os fatos cobrem:
+consultar um pequeno catálogo fictício. Os fatos cobrem:
 
-- ano de fundacao, sede e diretora executiva da empresa;
-- preco e autonomia do drone Pulsar X1;
-- potencia e preco do Lumen Pad;
+- ano de fundação, sede e diretora executiva da empresa;
+- preço e autonomia do drone Pulsar X1;
+- potência e preço do Lumen Pad;
 - quantidade de portas do Nimbus Dock;
 - prazo de garantia dos produtos;
 - funcionamento do modo de privacidade Cripta.
 
-Cada linha e uma conversa com tres mensagens: uma instrucao `system` que define
+Cada linha é uma conversa com três mensagens: uma instrução `system` que define
 o papel do assistente, uma pergunta `user` e a resposta correta `assistant`.
-As respostas incluem codigos como `VX-202` para facilitar a verificacao exata
-do que foi aprendido. Todos os nomes, valores, produtos e codigos sao ficticios
+As respostas incluem códigos como `VX-202` para facilitar a verificação exata
+do que foi aprendido. Todos os nomes, valores, produtos e códigos são fictícios
 e foram criados exclusivamente para este experimento.
 
 ```bash
@@ -100,9 +100,9 @@ Resultado esperado:
 ## 3. Treinar o adapter LoRA
 
 O script carrega o modelo base em 4-bit, congela seus pesos e treina somente
-as matrizes LoRA. O modelo base nao e alterado.
+as matrizes LoRA. O modelo base não é alterado.
 
-Se o vLLM do laboratorio estiver rodando, pare-o antes para liberar a GPU:
+Se o vLLM do laboratório estiver rodando, pare-o antes para liberar a GPU:
 
 ```bash
 docker compose down
@@ -121,7 +121,7 @@ O resultado fica em:
 outputs/vortexa-lora-500/
 ```
 
-O arquivo principal do adapter e `adapter_model.safetensors`. Ele nao e o
+O arquivo principal do adapter é `adapter_model.safetensors`. Ele não é o
 modelo completo; precisa ser usado junto com o modelo base.
 
 ## 4. Subir o vLLM com o LoRA
@@ -134,7 +134,7 @@ docker compose up -d
 docker compose logs -f vllm-vortexa
 ```
 
-O `Ctrl+C` no comando `logs -f` apenas interrompe a visualizacao dos logs; nao
+O `Ctrl+C` no comando `logs -f` apenas interrompe a visualização dos logs; não
 para o container.
 
 A API fica em `http://localhost:8085/v1`. Para verificar os modelos:
@@ -151,7 +151,7 @@ Devem aparecer dois modelos:
 ## 5. Comparar base e adapter
 
 Use a mesma pergunta nos dois modelos. O system prompt deve ser mantido igual
-ao usado no dataset para tornar a comparacao justa.
+ao usado no dataset para tornar a comparação justa.
 
 Modelo base:
 
@@ -161,8 +161,8 @@ curl -s http://localhost:8085/v1/chat/completions \
   -d '{
     "model": "Qwen/Qwen2.5-1.5B-Instruct",
     "messages": [
-      {"role": "system", "content": "Voce e o assistente oficial da Vortexa Sistemas, uma empresa ficticia. Responda em portugues, seja objetivo e nunca invente dados fora do catalogo."},
-      {"role": "user", "content": "Qual e a autonomia do Pulsar X1?"}
+      {"role": "system", "content": "Você é o assistente oficial da Vortexa Sistemas, uma empresa fictícia. Responda em português, seja objetivo e nunca invente dados fora do catálogo."},
+      {"role": "user", "content": "Qual é a autonomia do Pulsar X1?"}
     ],
     "temperature": 0,
     "max_tokens": 100
@@ -177,15 +177,15 @@ curl -s http://localhost:8085/v1/chat/completions \
   -d '{
     "model": "vortexa",
     "messages": [
-      {"role": "system", "content": "Voce e o assistente oficial da Vortexa Sistemas, uma empresa ficticia. Responda em portugues, seja objetivo e nunca invente dados fora do catalogo."},
-      {"role": "user", "content": "Qual e a autonomia do Pulsar X1?"}
+      {"role": "system", "content": "Você é o assistente oficial da Vortexa Sistemas, uma empresa fictícia. Responda em português, seja objetivo e nunca invente dados fora do catálogo."},
+      {"role": "user", "content": "Qual é a autonomia do Pulsar X1?"}
     ],
     "temperature": 0,
     "max_tokens": 100
   }' | python3 -m json.tool
 ```
 
-O `| python3 -m json.tool` apenas formata o JSON retornado pelo `curl`; ele nao
+O `| python3 -m json.tool` apenas formata o JSON retornado pelo `curl`; ele não
 altera a resposta do modelo.
 
 ## Exemplo observado: antes e depois do LoRA
@@ -196,14 +196,14 @@ pergunta foi enviada ao modelo base e ao adapter, usando `temperature: 0`.
 Pergunta:
 
 ```text
-Qual e o preco do Lumen Pad?
+Qual é o preço do Lumen Pad?
 ```
 
 Resposta do modelo base:
 
 ```text
-Desculpe pela confusao, mas como a Vortexa Sistemas e uma empresa ficticia,
-nao tenho informacoes especificas sobre precos ou produtos.
+Desculpe pela confusão, mas como a Vortexa Sistemas é uma empresa fictícia,
+não tenho informações específicas sobre preços ou produtos.
 ```
 
 Resposta do primeiro adapter LoRA:
@@ -213,35 +213,35 @@ O Lumen Pad da Vortexa custa R$ 2.999. (Registro VX-201)
 ```
 
 O adapter reconheceu o estilo da Vortexa e passou a usar registros `VX-*`,
-mas errou o fato: o valor correto do dataset e `R$ 1.149` e o registro correto
-e `VX-204`. Em outro teste, respondeu 45 minutos e `VX-204` para a autonomia
-do Pulsar X1, cujo valor correto e 47 minutos e `VX-202`.
+mas errou o fato: o valor correto do dataset é `R$ 1.149` e o registro correto
+é `VX-204`. Em outro teste, respondeu 45 minutos e `VX-204` para a autonomia
+do Pulsar X1, cujo valor correto é 47 minutos e `VX-202`.
 
-Esse resultado e didaticamente importante: loss baixa e mudanca de estilo nao
+Esse resultado é didaticamente importante: loss baixa e mudança de estilo não
 significam que o modelo virou um banco de dados exato. Por isso a segunda
-rodada usa 500 exemplos, com 50 variacoes para cada fato, e deve ser avaliada
+rodada usa 500 exemplos, com 50 variações para cada fato, e deve ser avaliada
 com todas as perguntas de `data/eval.jsonl`.
 
 ## Evidencia da segunda rodada: dataset com 500 exemplos
 
 Depois do segundo treinamento, o adapter `vortexa` foi servido pelo vLLM e
-testado com `temperature: 0`. As tres perguntas abaixo foram respondidas com
+testado com `temperature: 0`. As três perguntas abaixo foram respondidas com
 os fatos e registros esperados:
 
 | Pergunta | Resposta do adapter |
 | --- | --- |
-| Qual e a autonomia do Pulsar X1? | O Pulsar X1 tem autonomia de 47 minutos. (Registro VX-202) |
-| Quem ocupa o cargo de diretora executiva da Vortexa? | A diretora executiva da Vortexa e Marina Quaresma. (Registro VX-103) |
-| Qual e o prazo de garantia dos produtos Vortexa? | A garantia dos produtos Vortexa dura 37 meses. (Registro VX-301) |
+| Qual é a autonomia do Pulsar X1? | O Pulsar X1 tem autonomia de 47 minutos. (Registro VX-202) |
+| Quem ocupa o cargo de diretora executiva da Vortexa? | A diretora executiva da Vortexa é Marina Quaresma. (Registro VX-103) |
+| Qual é o prazo de garantia dos produtos Vortexa? | A garantia dos produtos Vortexa dura 37 meses. (Registro VX-301) |
 
-Esses testes nao substituem uma avaliacao automatizada completa, mas mostram
-uma melhoria clara em relacao a primeira rodada: o adapter de 40 exemplos
-confundia precos, valores e codigos, enquanto o adapter de 500 exemplos acertou
-as tres perguntas testadas, incluindo variacoes de fatos diferentes.
+Esses testes não substituem uma avaliação automatizada completa, mas mostram
+uma melhoria clara em relação à primeira rodada: o adapter de 40 exemplos
+confundia preços, valores e códigos, enquanto o adapter de 500 exemplos acertou
+as três perguntas testadas, incluindo variações de fatos diferentes.
 
-## 6. Restaurar servicos pausados
+## 6. Restaurar serviços pausados
 
-Se os servicos locais de transcricao foram pausados para liberar a GPU, podem
+Se os serviços locais de transcrição foram pausados para liberar a GPU, podem
 ser iniciados novamente com:
 
 ```bash
@@ -259,10 +259,10 @@ nvidia-smi
 systemctl status faster-whisper-distil-ct2.service faster-whisper-freds0.service faster-whisper.service parakeet-asr.service ezwhisper.service
 ```
 
-## Observacoes
+## Observações
 
 Um adapter LoRA pode aprender o estilo de resposta sem aprender fatos com
-precisao suficiente. Por isso a avaliacao deve comparar varias perguntas do
-arquivo `data/eval.jsonl`, e nao apenas uma resposta isolada.
+precisão suficiente. Por isso a avaliação deve comparar várias perguntas do
+arquivo `data/eval.jsonl`, e não apenas uma resposta isolada.
 
-Nao ha senhas, tokens ou chaves privadas necessarios para este servidor local.
+Não há senhas, tokens ou chaves privadas necessários para este servidor local.

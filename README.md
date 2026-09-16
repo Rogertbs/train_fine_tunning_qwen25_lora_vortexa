@@ -258,6 +258,31 @@ Nos três casos, o texto principal da resposta estava correto, mas o código do
 registro estava errado. Como o código foi criado para permitir uma verificação
 exata, o avaliador marcou essas respostas como erro.
 
+### Comparação das curvas de treinamento
+
+Os dois treinamentos também salvaram seus históricos em `trainer_state.json`.
+O gráfico abaixo coloca as curvas na mesma imagem para facilitar a comparação:
+
+![Comparação dos treinamentos QLoRA](docs/training-comparison.png)
+
+O primeiro treinamento usou 40 exemplos e teve 25 passos totais. O segundo usou
+500 exemplos e teve 250 passos. Por isso o eixo horizontal foi normalizado por
+época, e não pelo número bruto de passos.
+
+- **Loss de treinamento:** mede o erro do modelo nos exemplos usados para
+  atualizar os pesos LoRA.
+- **Loss de avaliação:** mede o erro nos exemplos reservados e não usados para
+  atualizar os pesos. É a curva mais útil para observar generalização.
+- A redução das duas curvas indica que o modelo aprendeu o padrão dos dados.
+  A avaliação factual de 97/100 complementa o gráfico, pois loss não substitui
+  a verificação das respostas.
+
+O gráfico pode ser recriado com:
+
+```bash
+python3 scripts/plot_training.py
+```
+
 ## Observações
 
 Um adapter LoRA pode aprender o estilo de resposta sem aprender fatos com

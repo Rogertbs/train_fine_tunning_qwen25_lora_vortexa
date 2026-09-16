@@ -1,0 +1,30 @@
+# Ambientes Python e caches de ferramentas
+.venv/
+.venv-*/
+.uv-cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Cache e pesos baixados do HuggingFace
+models/
+
+# Artefatos gerados pelo treinamento (adapters, checkpoints e logs)
+outputs/
+logs/
+unsloth_compiled_cache/
+
+# Configuracao local, que pode conter caminhos ou credenciais
+env.sh
+.env
+.env.*
+!.env.example
+
+# Anotacoes da infraestrutura local
+PAUSED_SERVICES.md
+
+# Sistema operacional e editores
+.DS_Store
+.idea/
+.vscode/
+*.swp

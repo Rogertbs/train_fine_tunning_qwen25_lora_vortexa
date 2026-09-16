@@ -1,0 +1,41 @@
+services:
+  vllm-vortexa:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-vortexa-lora
+    ipc: host
+    shm_size: "8gb"
+    ports:
+      - "8085:8000"
+    volumes:
+      # Reutiliza os pesos baixados pelo treinamento.
+      - ./models/hf-cache:/root/.cache/huggingface
+      # O adapter e somente leitura dentro do servidor.
+      - ./outputs/vortexa-lora-500:/models/vortexa-lora:ro
+    environment:
+      HF_HOME: /root/.cache/huggingface
+      HF_HUB_ENABLE_HF_TRANSFER: "0"
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    command:
+      - Qwen/Qwen2.5-1.5B-Instruct
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --dtype
+      - auto
+      - --max-model-len
+      - "1024"
+      - --gpu-memory-utilization
+      - "0.45"
+      - --enable-lora
+      - --lora-modules
+      - vortexa=/models/vortexa-lora
+      - --max-lora-rank
+      - "16"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]

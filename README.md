@@ -239,6 +239,25 @@ uma melhoria clara em relação à primeira rodada: o adapter de 40 exemplos
 confundia preços, valores e códigos, enquanto o adapter de 500 exemplos acertou
 as três perguntas testadas, incluindo variações de fatos diferentes.
 
+### Avaliação automatizada
+
+A avaliação completa foi executada sobre os 100 exemplos de `data/eval.jsonl`:
+
+```text
+Registros corretos: 97/100 (97.0%)
+Respostas exatas: 97/100 (97.0%)
+```
+
+As três falhas foram:
+
+- Pergunta sobre a autonomia do Pulsar X1: respondeu `VX-203` em vez de `VX-202`.
+- Outra variação sobre a autonomia do Pulsar X1: respondeu `VX-205` em vez de `VX-202`.
+- Pergunta sobre o preço do Pulsar X1: respondeu `VX-204` em vez de `VX-201`.
+
+Nos três casos, o texto principal da resposta estava correto, mas o código do
+registro estava errado. Como o código foi criado para permitir uma verificação
+exata, o avaliador marcou essas respostas como erro.
+
 ## Observações
 
 Um adapter LoRA pode aprender o estilo de resposta sem aprender fatos com
